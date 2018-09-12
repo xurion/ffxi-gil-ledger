@@ -1,6 +1,6 @@
 _addon.name = 'GilLedger'
 _addon.author = 'Dean James (Xurion of Bismarck)'
-_addon.version = '0.0.1'
+_addon.version = '1.0.0'
 _addon.commands = {'gilledger', 'ledger'}
 
 packets = require('packets')
@@ -11,6 +11,7 @@ settings = config.load(defaults)
 config.save(settings)
 
 item_assign_packet_id = 0x01F
+item_updates_packet_id = 0x020
 gil_item_id = 65535
 
 function comma_value(n) --credit http://richard.warburton.it
@@ -23,10 +24,11 @@ function uc_word(word)
 end
 
 windower.register_event('incoming chunk', function(id, packet)
-	if id == item_assign_packet_id then
+	if id == item_assign_packet_id or id == item_updates_packet_id then
 		local parsed = packets.parse('incoming', packet)
 		if parsed.Item == gil_item_id then
-			settings[windower.ffxi.get_player().name] = parsed.Count
+			local character_name = windower.ffxi.get_player().name:lower()
+			settings[character_name] = parsed.Count
 			config.save(settings, 'all')
 		end
 	end
